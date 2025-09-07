@@ -1,0 +1,10 @@
+# Firebase credentials
+firebase-config.js
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example

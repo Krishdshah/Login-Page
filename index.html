@@ -3,24 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Login & Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
-    <header>
-        <div class="header">
-            <nav class="header-right">
-                <div class="signup-header"><a href="#signup">Sign Up</a></div>
-                <div class="login-header"><a href="#login">Login</a></div>
-            </nav>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="auth-container">
+        <header>
+            <div class="header">
+                <nav class="header-right">
+                    <div class="signup-header"><a href="#" id="show-signup">Sign Up</a></div>
+                    <div class="login-header"><a href="#" id="show-login">Login</a></div>
+                </nav>
+            </div>
+        </header>
+
+        <div class="login-box" id="login-box">
+            <h2>Login</h2>
+            <div class="input-group">
+                <label for="login-email" class="form-label">Email</label>
+                <input type="email" id="login-email" placeholder="Enter your email" class="form-input">
+            </div>
+            <div class="input-group">
+                <label for="login-password" class="form-label">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password" class="form-input">
+            </div>
+            <button id="login-button" class="form-button">Login</button>
+            <div class="connect-section">or</div>
+            <button id="google-login-button" class="google-login-btn">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" class="google-logo">
+                Sign in with Google
+            </button>
+             <p id="login-error" class="error-message"></p>
         </div>
-    </header>
-    <div class="login-box">
-        <label for="username" class="username">Username</label>
-        <input type="text" value="username" class="username-label">
-        <label for="password" class="pswd">Password</label>
-        <input type="text" value="Password" class="pswd-label">
-        <div class="connect-section">or</div>
+
+        <div class="login-box" id="signup-box" style="display: none;">
+            <h2>Sign Up</h2>
+            <div class="input-group">
+                <label for="signup-email" class="form-label">Email</label>
+                <input type="email" id="signup-email" placeholder="Enter your email" class="form-input">
+            </div>
+            <div class="input-group">
+                <label for="signup-password" class="form-label">Password</label>
+                <input type="password" id="signup-password" placeholder="Create a password" class="form-input">
+            </div>
+            <button id="signup-button" class="form-button">Sign Up</button>
+            <p id="signup-error" class="error-message"></p>
+        </div>
     </div>
+
+    <div id="dashboard-container" style="display: none;">
+        <div class="dashboard-box">
+            <h2>Profile Dashboard</h2>
+            <p>Welcome!</p>
+            <p id="user-email"></p>
+            <p id="user-uid"></p>
+            <button id="logout-button" class="form-button">Logout</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+        // --- START: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_AUTH_DOMAIN",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_STORAGE_BUCKET",
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
+        // --- END: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // --- ALL YOUR FIREBASE AUTHENTICATION LOGIC GOES HERE ---
+        // (This is the same as the previous response, keeping it concise here)
+        // Get DOM Elements
+        const authContainer = document.getElementById('auth-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginBox = document.getElementById('login-box');
+        const signupBox = document.getElementById('signup-box');
+        const showLoginLink = document.getElementById('show-login');
+        const showSignupLink = document.getElementById('show-signup');
+        const loginButton = document.getElementById('login-button');
+        const signupButton = document.getElementById('signup-button');
+        const googleLoginButton = document.getElementById('google-login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const loginError = document.getElementById('login-error');
+        const signupError = document.getElementById('signup-error');
+
+        // Sign up
+        signupButton.addEventListener('click', () => { /* ... same as before */ });
+        // Login
+        loginButton.addEventListener('click', () => { /* ... same as before */ });
+        // Google Login
+        googleLoginButton.addEventListener('click', () => { /* ... same as before */ });
+        // Logout
+        logoutButton.addEventListener('click', () => { /* ... same as before */ });
+        // Auth State Listener
+        auth.onAuthStateChanged(user => { /* ... same as before */ });
+        // UI Toggles
+        showSignupLink.addEventListener('click', (e) => { /* ... same as before */ });
+        showLoginLink.addEventListener('click', (e) => { /* ... same as before */ });
+        
+        // --- START OF COPIED FIREBASE LOGIC FOR COMPLETENESS ---
+        signupButton.addEventListener('click', () => {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            signupError.textContent = '';
+            auth.createUserWithEmailAndPassword(email, password)
+                .catch((error) => { signupError.textContent = error.message; });
+        });
+        loginButton.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            loginError.textContent = '';
+            auth.signInWithEmailAndPassword(email, password)
+                .catch((error) => { loginError.textContent = error.message; });
+        });
+        googleLoginButton.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch((error) => { loginError.textContent = error.message; });
+        });
+        logoutButton.addEventListener('click', () => {
+            auth.signOut();
+        });
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                authContainer.style.display = 'none';
+                dashboardContainer.style.display = 'flex';
+                document.getElementById('user-email').textContent = `Email: ${user.email}`;
+                document.getElementById('user-uid').textContent = `User ID: ${user.uid}`;
+            } else {
+                authContainer.style.display = 'block';
+                dashboardContainer.style.display = 'none';
+            }
+        });
+        showSignupLink.addEventListener('click', (e) => { e.preventDefault(); loginBox.style.display = 'none'; signupBox.style.display = 'block'; });
+        showLoginLink.addEventListener('click', (e) => { e.preventDefault(); loginBox.style.display = 'block'; signupBox.style.display = 'none'; });
+        // --- END OF COPIED FIREBASE LOGIC ---
+
+    </script>
     
+    <script>
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#bg-canvas'),
+        });
+
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.setZ(30);
+
+        // --- CREATE STARS ---
+        const starGeometry = new THREE.BufferGeometry();
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.02 // Adjust size of stars
+        });
+        
+        const starVertices = [];
+        for (let i = 0; i < 10000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starVertices.push(x, y, z);
+        }
+
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        // --- MOUSE MOVEMENT ---
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+
+        // --- ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animate stars rotation based on mouse position
+            stars.rotation.x = -mouseY * 0.00005;
+            stars.rotation.y = -mouseX * 0.00005;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // --- HANDLE WINDOW RESIZING ---
+        window.addEventListener('resize', () => {
+            // Update camera
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            // Update renderer
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+        });
+
+    </script>
+
 </body>
 </html>
