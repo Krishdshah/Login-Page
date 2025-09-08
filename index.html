@@ -67,25 +67,11 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script type="module" src="firebase-config.js"></script>
 
     <script>
-        // --- START: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
-        const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_AUTH_DOMAIN",
-          projectId: "YOUR_PROJECT_ID",
-          storageBucket: "YOUR_STORAGE_BUCKET",
-          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-          appId: "YOUR_APP_ID"
-        };
-        // --- END: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
+        // NOTE: The 'auth' constant is now available because firebase-config.js was loaded and initialized it.
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // --- ALL YOUR FIREBASE AUTHENTICATION LOGIC GOES HERE ---
-        // (This is the same as the previous response, keeping it concise here)
         // Get DOM Elements
         const authContainer = document.getElementById('auth-container');
         const dashboardContainer = document.getElementById('dashboard-container');
@@ -100,21 +86,7 @@
         const loginError = document.getElementById('login-error');
         const signupError = document.getElementById('signup-error');
 
-        // Sign up
-        signupButton.addEventListener('click', () => { /* ... same as before */ });
-        // Login
-        loginButton.addEventListener('click', () => { /* ... same as before */ });
-        // Google Login
-        googleLoginButton.addEventListener('click', () => { /* ... same as before */ });
-        // Logout
-        logoutButton.addEventListener('click', () => { /* ... same as before */ });
-        // Auth State Listener
-        auth.onAuthStateChanged(user => { /* ... same as before */ });
-        // UI Toggles
-        showSignupLink.addEventListener('click', (e) => { /* ... same as before */ });
-        showLoginLink.addEventListener('click', (e) => { /* ... same as before */ });
-        
-        // --- START OF COPIED FIREBASE LOGIC FOR COMPLETENESS ---
+        // --- AUTHENTICATION LOGIC ---
         signupButton.addEventListener('click', () => {
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
@@ -122,6 +94,7 @@
             auth.createUserWithEmailAndPassword(email, password)
                 .catch((error) => { signupError.textContent = error.message; });
         });
+
         loginButton.addEventListener('click', () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
@@ -129,14 +102,23 @@
             auth.signInWithEmailAndPassword(email, password)
                 .catch((error) => { loginError.textContent = error.message; });
         });
+
         googleLoginButton.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
-                .catch((error) => { loginError.textContent = error.message; });
+                .then((result) => {
+                    console.log('Google sign-in successful:', result.user);
+                })
+                .catch((error) => {
+                    console.error('Google sign-in error:', error);
+                    loginError.textContent = `Google Sign-In Error: ${error.message}`;
+                });
         });
+        
         logoutButton.addEventListener('click', () => {
             auth.signOut();
         });
+
         auth.onAuthStateChanged(user => {
             if (user) {
                 authContainer.style.display = 'none';
@@ -148,14 +130,12 @@
                 dashboardContainer.style.display = 'none';
             }
         });
+
         showSignupLink.addEventListener('click', (e) => { e.preventDefault(); loginBox.style.display = 'none'; signupBox.style.display = 'block'; });
         showLoginLink.addEventListener('click', (e) => { e.preventDefault(); loginBox.style.display = 'block'; signupBox.style.display = 'none'; });
-        // --- END OF COPIED FIREBASE LOGIC ---
-
     </script>
     
     <script>
-        // --- SCENE SETUP ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({
@@ -166,13 +146,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         camera.position.setZ(30);
 
-        // --- CREATE STARS ---
         const starGeometry = new THREE.BufferGeometry();
-        const starMaterial = new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 0.02 // Adjust size of stars
-        });
-        
         const starVertices = [];
         for (let i = 0; i < 10000; i++) {
             const x = (Math.random() - 0.5) * 2000;
@@ -180,13 +154,11 @@
             const z = (Math.random() - 0.5) * 2000;
             starVertices.push(x, y, z);
         }
-
         starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-        
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.02 });
         const stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
 
-        // --- MOUSE MOVEMENT ---
         let mouseX = 0;
         let mouseY = 0;
         document.addEventListener('mousemove', (event) => {
@@ -194,30 +166,20 @@
             mouseY = event.clientY;
         });
 
-        // --- ANIMATION LOOP ---
         function animate() {
             requestAnimationFrame(animate);
-
-            // Animate stars rotation based on mouse position
             stars.rotation.x = -mouseY * 0.00005;
             stars.rotation.y = -mouseX * 0.00005;
-
             renderer.render(scene, camera);
         }
-
         animate();
 
-        // --- HANDLE WINDOW RESIZING ---
         window.addEventListener('resize', () => {
-            // Update camera
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-
-            // Update renderer
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
         });
-
     </script>
 
 </body>
